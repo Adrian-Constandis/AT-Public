@@ -125,6 +125,11 @@ def day_detail(day_id):
     )
 
 
+@app.route("/healthz")
+def healthz():
+    return "ok", 200
+
+
 @app.route("/reset", methods=["POST"])
 def reset():
     save_state(create_default_state())
