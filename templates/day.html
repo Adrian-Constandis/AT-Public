@@ -7,43 +7,55 @@
   <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
-  <header>
-    <h1>{{ day.title }}</h1>
-    <p>{{ day.main_task }}</p>
-  </header>
-
-  <main>
-    <section class="detail-overview">
-      <div>
-        <h2>Summary</h2>
-        <p>{{ day.summary }}</p>
+  <div class="page-shell">
+    <header class="topbar detail-topbar">
+      <div class="topbar-copy">
+        <p class="eyebrow">Day plan</p>
+        <h1>{{ day.title }}</h1>
+        <p>{{ day.main_task }}</p>
       </div>
-      <div class="detail-main-task">
-        <strong>Main task:</strong>
-        <span>{{ day.main_task }}</span>
+      <div class="topbar-card detail-card">
+        <p class="topbar-label">Status</p>
+        <span class="status-pill {{ 'complete' if status else 'upcoming' }}">{{ 'Complete' if status else 'Pending' }}</span>
       </div>
-    </section>
+    </header>
 
-    <section class="detail-content">
-      <div>
-        <h2>Full details</h2>
-        <div id="detail-details">{{ day.details | replace('\n', '<br>') | safe }}</div>
-      </div>
-    </section>
-
-    <section class="detail-notes">
-      <form method="post">
-        <label for="detail-notes">Your notes</label>
-        <textarea id="detail-notes" name="notes">{{ notes }}</textarea>
-        <label>
-          <input type="checkbox" name="completed" {{ 'checked' if status else '' }} /> Mark complete
-        </label>
-        <div class="detail-action">
-          <button id="detail-mark-done" type="submit">Save</button>
-          <a class="back-button" href="/">← Back to week</a>
+    <main class="detail-layout">
+      <section class="panel detail-panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Summary</p>
+            <h2>{{ day.summary }}</h2>
+          </div>
+          <a class="secondary-link" href="/">← Back to week</a>
         </div>
-      </form>
-    </section>
-  </main>
+        <div class="detail-main-task">
+          <strong>Main task:</strong>
+          <span>{{ day.main_task }}</span>
+        </div>
+        <div id="detail-details">{{ day.details | replace('\n', '<br>') | safe }}</div>
+      </section>
+
+      <section class="panel notes-panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Notes & tracking</p>
+            <h2>Your notes</h2>
+          </div>
+        </div>
+        <form method="post" class="notes-form">
+          <textarea id="detail-notes" name="notes">{{ notes }}</textarea>
+          <label class="checkbox-row">
+            <input type="checkbox" name="completed" {{ 'checked' if status else '' }} />
+            <span>Mark this day complete</span>
+          </label>
+          <div class="detail-action">
+            <button id="detail-mark-done" type="submit">Save changes</button>
+            <a class="secondary-link" href="/">Back to week</a>
+          </div>
+        </form>
+      </section>
+    </main>
+  </div>
 </body>
 </html>

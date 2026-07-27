@@ -7,62 +7,100 @@
   <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
-  <header>
-    <h1>Taper Week Before Austria Camp</h1>
-    <p>Track daily progress and notes for the taper week.</p>
-  </header>
+  <div class="page-shell">
+    <header class="topbar">
+      <div class="topbar-copy">
+        <p class="eyebrow">Taper week plan</p>
+        <h1>Taper Week Before Austria Camp</h1>
+        <p>Keep the week calm, deliberate, and recovery-first so you arrive strong and fresh.</p>
+      </div>
+      <div class="topbar-card">
+        <p class="topbar-label">Today</p>
+        <h2>{{ days[today_index].title }}</h2>
+        <p>{{ days[today_index].main_task }}</p>
+        <a class="primary-link" href="/day/{{ today_index }}">Open today's plan</a>
+      </div>
+    </header>
 
-  <main>
-    <section class="overview">
-      <h2>Weekly Goal</h2>
-      <p>This is a deliberate deload/taper week. The goal is to arrive in Austria on Aug 2 fresh and healthy, not fatigued.</p>
-    </section>
-
-    <section class="progress-overview">
-      <div class="progress-summary">
-        <div>
-          <p class="progress-title">Weekly progress</p>
-          <p class="progress-count">{{ completed_count }} / {{ total_count }} days complete</p>
+    <main>
+      <section class="hero-card">
+        <div class="hero-copy">
+          <p class="eyebrow">Weekly focus</p>
+          <h2>Arrive in Austria fresh, not fried.</h2>
+          <p>This is a deliberate deload week. The goal is to protect rhythm, sleep, and energy rather than chase intensity.</p>
         </div>
-        <form method="post" action="/reset">
-          <button id="reset-progress" type="submit">Reset progress</button>
-        </form>
-      </div>
-      <div class="progress-squares" aria-label="Weekly progress">
-        {% for status in progress %}
-          <div class="progress-square {{ status }}">{{ ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][loop.index0] }}</div>
-        {% endfor %}
-      </div>
-      <p class="progress-note">Green = complete, red = overdue, gray = upcoming.</p>
-    </section>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <p class="stat-value">{{ completed_count }} / {{ total_count }}</p>
+            <p class="stat-label">Days complete</p>
+          </div>
+          <div class="stat-box">
+            <p class="stat-value">{{ days[today_index].title }}</p>
+            <p class="stat-label">Current focus</p>
+          </div>
+        </div>
+      </section>
 
-    <section class="days">
-      {% for day in days %}
-        {% set day_state = state[loop.index0] %}
-        <article class="day-card {{ 'completed' if day_state.completed else '' }} {{ 'today' if loop.index0 == today_index else '' }}">
-          <div class="day-side">
-            <p><strong>{{ day.title }}</strong></p>
-            <p>{{ day.main_task }}</p>
-            <p class="day-status">{{ 'Completed' if day_state.completed else 'Not completed' }}</p>
-          </div>
-          <div class="day-body">
-            <div class="day-header">
-              <h3 class="day-title">{{ day.title }}</h3>
-              <a class="details-link" href="/day/{{ loop.index0 }}">View details</a>
+      <section class="dashboard-grid">
+        <article class="panel progress-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Progress</p>
+              <h3>Weekly rhythm</h3>
             </div>
-            <p class="day-summary">{{ day.summary }}</p>
-            <div class="status-row">
-              <form method="post" action="/day/{{ loop.index0 }}">
-                <input type="hidden" name="notes" value="{{ day_state.notes|e }}" />
-                <input type="hidden" name="completed" value="{{ 'on' if day_state.completed else '' }}" />
-                <button class="mark-done" type="submit">{{ 'Mark not done' if day_state.completed else 'Mark complete' }}</button>
-              </form>
-              <span class="status-label">{{ 'Completed' if day_state.completed else 'Not completed' }}</span>
-            </div>
+            <form method="post" action="/reset">
+              <button id="reset-progress" type="submit">Reset</button>
+            </form>
           </div>
+          <div class="progress-meter" aria-label="Weekly progress">
+            <div class="progress-bar" style="width: {{ (completed_count / total_count * 100) | round(0) }}%;"></div>
+          </div>
+          <div class="progress-squares" aria-label="Weekly progress">
+            {% for status in progress %}
+              <div class="progress-square {{ status }}">{{ ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][loop.index0] }}</div>
+            {% endfor %}
+          </div>
+          <p class="progress-note">Green = complete, red = missed, blue = today's focus.</p>
         </article>
-      {% endfor %}
-    </section>
-  </main>
+
+        <article class="panel focus-panel">
+          <p class="eyebrow">Today</p>
+          <h3>{{ days[today_index].title }}</h3>
+          <p>{{ days[today_index].main_task }}</p>
+          <a class="primary-link" href="/day/{{ today_index }}">Review today</a>
+        </article>
+      </section>
+
+      <section class="days">
+        {% for day in days %}
+          {% set day_state = state[loop.index0] %}
+          <article class="day-card {{ 'completed' if day_state.completed else '' }} {{ 'today' if loop.index0 == today_index else '' }}">
+            <div class="day-marker"></div>
+            <div class="day-content">
+              <div class="day-top">
+                <div>
+                  <p class="day-label">{{ ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][loop.index0] }}</p>
+                  <h3>{{ day.title }}</h3>
+                </div>
+                <span class="status-pill {{ 'complete' if day_state.completed else 'upcoming' }}">{{ 'Done' if day_state.completed else 'Planned' }}</span>
+              </div>
+              <p class="day-summary">{{ day.summary }}</p>
+              <div class="day-bottom">
+                <p class="main-task">{{ day.main_task }}</p>
+                <div class="day-actions">
+                  <form method="post" action="/day/{{ loop.index0 }}">
+                    <input type="hidden" name="notes" value="{{ day_state.notes|e }}" />
+                    <input type="hidden" name="completed" value="{{ 'on' if day_state.completed else '' }}" />
+                    <button class="mark-done" type="submit">{{ 'Undo' if day_state.completed else 'Mark complete' }}</button>
+                  </form>
+                  <a class="details-link" href="/day/{{ loop.index0 }}">Open plan</a>
+                </div>
+              </div>
+            </div>
+          </article>
+        {% endfor %}
+      </section>
+    </main>
+  </div>
 </body>
 </html>
