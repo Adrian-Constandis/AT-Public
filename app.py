@@ -1,6 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for
+import os
 import json
 from pathlib import Path
+
+from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 STATE_FILE = Path(__file__).with_name("state.json")
@@ -130,4 +132,5 @@ def reset():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080, debug=False)
+    port = int(os.environ.get("PORT", "8080"))
+    app.run(host="0.0.0.0", port=port, debug=False)
