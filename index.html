@@ -6,7 +6,7 @@
   <title>Taper Week Tracker</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
+<body data-page="main">
   <header>
     <h1>Taper Week Before Austria Camp</h1>
     <p>Track daily progress and notes for the taper week.</p>
@@ -20,38 +20,16 @@
       <div class="progress-summary">
         <div>
           <p class="progress-title">Weekly progress</p>
-          <p class="progress-count"><span id="completed-count">0</span> / <span id="total-count">7</span> days complete</p>
+          <p class="progress-count"><span id="completed-count">0</span> / <span id="total-count">6</span> days complete</p>
         </div>
         <button id="reset-progress" type="button">Reset progress</button>
       </div>
-      <div class="progress-bar" aria-label="Weekly progress">
-        <div class="progress-fill" id="progress-fill"></div>
-      </div>
+      <div class="progress-squares" id="progress-squares" aria-label="Weekly progress"></div>
+      <p class="progress-note">Green = complete, red = overdue, gray = upcoming. Click a day card for full details.</p>
     </section>
     <section class="days" id="days"></section>
   </main>
-  <template id="day-template">
-    <article class="day-card">
-      <div class="day-header">
-        <h3 class="day-title"></h3>
-        <button class="toggle-notes">Show notes</button>
-      </div>
-      <div class="day-summary"></div>
-      <details class="day-notes">
-        <summary>Details</summary>
-        <div class="day-details"></div>
-      </details>
-      <div class="log-area">
-        <label>Progress notes</label>
-        <textarea placeholder="Write today’s progress or feelings..."></textarea>
-        <div class="save-status" aria-live="polite"></div>
-      </div>
-      <div class="status-row">
-        <button class="mark-done">Mark complete</button>
-        <span class="status-label">Not completed</span>
-      </div>
-    </article>
-  </template>
-  <script src="script.js"></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
