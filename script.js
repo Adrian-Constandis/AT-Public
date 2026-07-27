@@ -1,3 +1,5 @@
+const STORAGE_KEY = "taperWeekProgressState";
+
 const daysData = [
   {
     title: "Monday – Easy Spin",
@@ -69,7 +71,7 @@ Notes: If HRV is low, downgrade to Monday's easy-spin format.",
 - 10:45 Snack: fruit + yogurt
 - 12:30 Lunch: balanced meal
 - 15:00 Snack: nuts + fruit
-- 17:00 Light mobility, 10–15 min
+- 17:00 Light mobility, 10-15 min
 - 18:30 Dinner: balanced meal
 - 21:15 Lights out — target 10 hours of sleep
 
@@ -130,17 +132,78 @@ Notes: End the week feeling fresher and ready for travel.",
   },
 ];
 
-function createDayCard(day) {
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      return { items: daysData.map(() => ({ completed: false, notes: "" })) };
+    }
+    const parsed = JSON.parse(raw);
+    if (!parsed || !Array.isArray(parsed.items) || parsed.items.length !== daysData.length) {
+      return { items: daysData.map(() => ({ completed: false, notes: "" })) };
+    }
+    return parsed;
+  } catch (error) {
+    console.warn("Could not load saved state:", error);
+    return { items: daysData.map(() => ({ completed: false, notes: "" })) };
+  }
+}
+
+function saveState(state) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (error) {
+    console.warn("Could not save state:", error);
+  }
+}
+
+function getTodayIndex() {
+  const day = new Date().getDay();
+  return day === 0 ? 6 : day - 1;
+}
+
+function updateProgress(state) {
+  const completedCount = state.items.filter((item) => item.completed).length;
+  const totalCount = daysData.length;
+  document.getElementById("completed-count").textContent = completedCount;
+  document.getElementById("total-count").textContent = totalCount;
+  document.getElementById("progress-fill").style.width = `${Math.round((completedCount / totalCount) * 100)}%`;
+}
+
+function createDayCard(day, index, state) {
   const template = document.getElementById("day-template");
   const node = template.content.cloneNode(true);
+  const card = node.querySelector(".day-card");
+  const saved = state.items[index];
+
   node.querySelector(".day-title").textContent = day.title;
   node.querySelector(".day-summary").textContent = day.summary;
   node.querySelector(".day-details").innerHTML = day.details.replace(/\n/g, "<br>");
+
   const toggleBtn = node.querySelector(".toggle-notes");
   const detailsEl = node.querySelector(".day-notes");
   const statusLabel = node.querySelector(".status-label");
   const markDoneBtn = node.querySelector(".mark-done");
   const textarea = node.querySelector("textarea");
+  const saveStatus = node.querySelector(".save-status");
+
+  const todayIndex = getTodayIndex();
+  card.classList.toggle("today", index === todayIndex);
+
+  function applyDayState(completed) {
+    statusLabel.textContent = completed ? "Completed" : "Not completed";
+    statusLabel.style.color = completed ? "#2f9e44" : "#1d2636";
+    markDoneBtn.textContent = completed ? "Mark not done" : "Mark complete";
+    card.classList.toggle("completed", completed);
+  }
+
+  function showSavedMessage(message) {
+    saveStatus.textContent = message;
+    clearTimeout(saveStatus.timeoutId);
+    saveStatus.timeoutId = setTimeout(() => {
+      saveStatus.textContent = "";
+    }, 1800);
+  }
 
   toggleBtn.addEventListener("click", () => {
     detailsEl.open = !detailsEl.open;
@@ -148,20 +211,47 @@ function createDayCard(day) {
   });
 
   markDoneBtn.addEventListener("click", () => {
-    const done = statusLabel.textContent !== "Completed";
-    statusLabel.textContent = done ? "Completed" : "Not completed";
-    statusLabel.style.color = done ? "#2f9e44" : "#1d2636";
-    markDoneBtn.textContent = done ? "Mark not done" : "Mark complete";
+    const completed = !state.items[index].completed;
+    state.items[index].completed = completed;
+    saveState(state);
+    applyDayState(completed);
+    updateProgress(state);
   });
 
+  textarea.value = saved.notes || "";
   textarea.addEventListener("input", () => {
-    textarea.dataset.saved = "true";
+    state.items[index].notes = textarea.value;
+    saveState(state);
+    showSavedMessage("Saved");
   });
 
+  applyDayState(saved.completed);
   return node;
 }
 
-const daysContainer = document.getElementById("days");
-for (const day of daysData) {
-  daysContainer.appendChild(createDayCard(day));
+function resetProgress() {
+  const newState = { items: daysData.map(() => ({ completed: false, notes: "" })) };
+  saveState(newState);
+  return newState;
 }
+
+const state = loadState();
+const daysContainer = document.getElementById("days");
+for (let i = 0; i < daysData.length; i += 1) {
+  daysContainer.appendChild(createDayCard(daysData[i], i, state));
+}
+
+updateProgress(state);
+
+document.getElementById("reset-progress").addEventListener("click", () => {
+  const confirmed = window.confirm("Reset all saved notes and completion status for this week?");
+  if (!confirmed) {
+    return;
+  }
+  const freshState = resetProgress();
+  daysContainer.innerHTML = "";
+  for (let i = 0; i < daysData.length; i += 1) {
+    daysContainer.appendChild(createDayCard(daysData[i], i, freshState));
+  }
+  updateProgress(freshState);
+});
