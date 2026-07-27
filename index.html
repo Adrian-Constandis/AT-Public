@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Taper Week Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Taper Week Before Austria Camp</h1>
+    <p>Track daily progress and notes for the taper week.</p>
+  </header>
+  <main>
+    <section class="overview">
+      <h2>Weekly Goal</h2>
+      <p>This is a deliberate deload/taper week. The goal is to arrive in Austria on Aug 2 fresh and healthy, not fatigued.</p>
+    </section>
+    <section class="days" id="days"></section>
+  </main>
+  <template id="day-template">
+    <article class="day-card">
+      <div class="day-header">
+        <h3 class="day-title"></h3>
+        <button class="toggle-notes">Show notes</button>
+      </div>
+      <div class="day-summary"></div>
+      <details class="day-notes">
+        <summary>Details</summary>
+        <div class="day-details"></div>
+      </details>
+      <div class="log-area">
+        <label>Progress notes</label>
+        <textarea placeholder="Write today’s progress or feelings..."></textarea>
+      </div>
+      <div class="status-row">
+        <button class="mark-done">Mark complete</button>
+        <span class="status-label">Not completed</span>
+      </div>
+    </article>
+  </template>
+  <script src="script.js"></script>
+</body>
+</html>
