@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ day.title }} — Taper Week Tracker</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header>
+    <h1>{{ day.title }}</h1>
+    <p>{{ day.main_task }}</p>
+  </header>
+
+  <main>
+    <section class="detail-overview">
+      <div>
+        <h2>Summary</h2>
+        <p>{{ day.summary }}</p>
+      </div>
+      <div class="detail-main-task">
+        <strong>Main task:</strong>
+        <span>{{ day.main_task }}</span>
+      </div>
+    </section>
+
+    <section class="detail-content">
+      <div>
+        <h2>Full details</h2>
+        <div id="detail-details">{{ day.details | replace('\n', '<br>') | safe }}</div>
+      </div>
+    </section>
+
+    <section class="detail-notes">
+      <form method="post">
+        <label for="detail-notes">Your notes</label>
+        <textarea id="detail-notes" name="notes">{{ notes }}</textarea>
+        <label>
+          <input type="checkbox" name="completed" {{ 'checked' if status else '' }} /> Mark complete
+        </label>
+        <div class="detail-action">
+          <button id="detail-mark-done" type="submit">Save</button>
+          <a class="back-button" href="/">← Back to week</a>
+        </div>
+      </form>
+    </section>
+  </main>
+</body>
+</html>
